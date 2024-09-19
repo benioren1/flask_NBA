@@ -3,6 +3,8 @@ from flask import Flask, jsonify, request, Blueprint
 from models.player import Player
 from models.team import Team
 from db import db
+from services.servic_to_team import get_team1
+
 bp_teams = Blueprint('teams', __name__)
 
 #מקבל את הנתונים של הקבוצה ובודק תקינות יוצר ומחזיר לפונקציה להכניס לdb
@@ -87,3 +89,22 @@ def get_team(team_id):
         player = Player.query.filter_by(playerId=my_list[i]).first()
         dict_team[player.position] = player.to_dict()
     return jsonify({'name':team.teamname,'players': dict_team}), 200
+
+@bp_teams.route('/compare', methods=['GET'])
+def equal_between_teams():
+    team1_id = request.args.get('team1')
+    team2_id = request.args.get('team2')
+    print(team1_id, team2_id)
+    team1_ppg = get_team1(team1_id)
+    team2_ppg = get_team1(team2_id)
+    print(team1_ppg, team2_ppg)
+
+    if team1_ppg > team2_ppg:
+        return jsonify({'message': 'Team 1 is bigger'}), 200
+    elif team1_ppg < team2_ppg:
+        return jsonify({'message': 'Team 2 is bigger'}), 200
+    else:
+        return jsonify({'message': 'Both teams are equal'}), 200
+
+
+
