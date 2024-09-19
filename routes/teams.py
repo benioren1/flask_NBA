@@ -5,18 +5,12 @@ from models.team import Team
 from db import db
 bp_teams = Blueprint('teams', __name__)
 
-
-
-#יצירת קבוצה של שחקנים
-@bp_teams.route('/', methods=['POST'])
-def create_team():
-    data = request.get_json()
-    min_players = 5
-    if 'teamname' not in data or 'playerId' not in data or len(data['playerId']) < min_players:
-        return jsonify({'error': 'Missing required fields'}), 400
+#מקבל את הנתונים של הקבוצה ובודק תקינות יוצר ומחזיר לפונקציה להכניס לdb
+def create(data):
     teamname = data['teamname']
     players_id = data['playerId']
     dict_position = {}
+    min_players = 5
     for player in players_id:
         this_player = Player.query.filter_by(playerId=player).first()
 
@@ -28,12 +22,28 @@ def create_team():
                     SF=dict_position['SF'],
                     SG=dict_position['SG'],
                     PG=dict_position['PG'])
+    return new_team
 
-    db.session.add(new_team)
-    db.session.commit()
+#יצירת קבוצה של שחקנים
+@bp_teams.route('/', methods=['POST'])
+def create_team():
+    data = request.get_json()
+    min_players = 5
+    if 'teamname' not in data or 'playerId' not in data or len(data['playerId']) < min_players:
+        return jsonify({'error': 'Missing required fields'}), 400
+    try:
+        new_team = create(data)
+        db.session.add(new_team)
+        db.session.commit()
+        return jsonify(new_team.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': "your have a problem in your requests"}), 400
 
-    return jsonify(new_team.to_dict()), 201
 
+
+
+#פןנקציה שמעדכנת קבוצה
 @bp_teams.route('/<int:team_id>', methods=['PUT'])
 def update_team(team_id):
     team = Team.query.get_or_404(team_id)
@@ -57,3 +67,23 @@ def update_team(team_id):
     team.PG=dict_position['PG']
     db.session.commit()
     return jsonify(team.to_dict()), 200
+
+#פונקציה שמוחקת קבוצה
+@bp_teams.route('/<int:team_id>', methods=['DELETE'])
+def delete_team(team_id):
+    team = Team.query.get_or_404(team_id)
+    db.session.delete(team)
+    db.session.commit()
+    return jsonify({'message': 'team deleted'}), 200
+
+
+#פונקציה למחיקה להצגה של קבוצה
+@bp_teams.route('/<int:team_id>', methods=['GET'])
+def get_team(team_id):
+    team = Team.query.get_or_404(team_id)
+    my_list = [team.C , team.PF, team.SF, team.SG, team.PG ]
+    dict_team = {}
+    for i in range(len(my_list)):
+        player = Player.query.filter_by(playerId=my_list[i]).first()
+        dict_team[player.position] = player.to_dict()
+    return jsonify({'name':team.teamname,'players': dict_team}), 200

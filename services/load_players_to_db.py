@@ -19,6 +19,13 @@ def sorrted_json_by_name():
 
 #פונקציה שיוצרת שחקן אחד כל פעם
 def create_player_to_object(player):
+    avg_points = get_avg_points_per_season(player['position'])
+
+    if player['games'] != 0 and avg_points != 0:
+        PPG_Ratio = (player['points'] / player['games']) / avg_points
+    else:
+        PPG_Ratio = 0
+
     return Player(
         playerId=player['playerId'],
         playerName=player['playerName'],
@@ -29,8 +36,10 @@ def create_player_to_object(player):
         games=player['games'],
         twoPercent=player['twoPercent'],
         threePercent=player['threePercent'],
-        ATR=(player['assists'] / player['turnovers'] if player['turnovers'] != 0 else 0)
+        ATR=(player['assists'] / player['turnovers'] if player['turnovers'] != 0 else 0),
+        PPG_Ratio=PPG_Ratio
     )
+
 
 #פונקציה שמכניסה את כל השחקנים לדאטה
 def add_all_players_to_database():
@@ -41,3 +50,9 @@ def add_all_players_to_database():
         db.session.commit()
     return 'All players added to the database.'
 
+#פונקציה שמחשבת ממוצע עונתי לכל עמדה
+def get_avg_points_per_season(position):
+    players = Player.query.filter_by(position=position).all()
+    total_points = sum(player.points for player in players)
+    total_games = sum(player.games for player in players)
+    return total_points / total_games if total_games!= 0 else 0

@@ -5,6 +5,12 @@ from models.player import Player
 bp_players= Blueprint('players', __name__)
 
 
+def get_all_the_items_players(playerId):
+    all_players = db.session.query(Player).filter_by(playerId=playerId).all()
+
+
+
+
 #פונקציה שמחזירה שחקנים לפי עמדה שלהם ושנה
 @bp_players.route('/', methods=['GET'])
 def get_players_by_position():
