@@ -17,10 +17,10 @@ class Player(db.Model):
 
     def to_dict(self):
         return {
-            'playername': self.playername,
+            'playername': self.playerName,
             'team': self.team,
             'position': self.position,
-            'seasons': [season.to_dict() for season in self.seasons],
+            'seasons': self.season,
             'points': self.points,
             'games': self.games,
             'twoPercent': self.twoPercent,
