@@ -20,6 +20,7 @@ def sorrted_json_by_name():
 #פונקציה שיוצרת שחקן אחד כל פעם
 def create_player_to_object(player):
     return Player(
+        playerId=player['playerId'],
         playerName=player['playerName'],
         team=player['team'],
         position=player['position'],

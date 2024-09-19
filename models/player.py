@@ -3,6 +3,7 @@ from db import db
 class Player(db.Model):
     __tablename__ = 'players'
     id = db.Column(db.Integer, primary_key=True)
+    playerId = db.Column(db.Integer, nullable=False)
     playerName = db.Column(db.String(50), nullable=False)
     team = db.Column(db.String(50), nullable=True)
     position = db.Column(db.String(50), nullable=True)

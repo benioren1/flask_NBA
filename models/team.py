@@ -4,8 +4,12 @@ class Team(db.Model):
     __tablename__ = 'teams'
     id = db.Column(db.Integer, primary_key=True)
     teamname = db.Column(db.String(50), nullable=False)
-    players_id = db.relationship('Player', backref='team', lazy='dynamic')
+    C = db.Column(db.String(50), nullable=True)
+    PF = db.Column(db.String(50), nullable=True)
+    SF = db.Column(db.String(50), nullable=True)
+    SG = db.Column(db.String(50), nullable=True)
+    PG = db.Column(db.String(50), nullable=True)
 
 
     def to_dict(self):
-        return {"id": self.id, "teamname": self.teamname, "players": [player.to_dict() for player in self.players_id]}
+        return {"teamname": self.teamname, "C": self.C, "PF": self.PF, "SF": self.SF, "SG": self.SG, "PG": self.PG}
